@@ -16,18 +16,10 @@ authors = [
 maintainers = [
   { name = "Luis Fernando Umaña Castro", email = "luis.umanacastro@ucr.ac.cr" },
 ]
-dependencies = [
-  "peewee",
-  "numpy",
-  "watchdog",
-]
-optional-dependencies = {
-  gui = [
-    "networkx",
-    "pygraphviz",
-  ]
-  cli = ["click",]
-}
+dependencies = ["peewee", "numpy", "watchdog"]
+
+[project.optional-dependencies]
+gui = ["networkx", "pygraphviz"]
 
 [project.scripts]
 manage = "manage:main"

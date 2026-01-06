@@ -2,7 +2,7 @@ import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from manage import Helper
+from .manage import Helper
 
 
 class Handler(FileSystemEventHandler):

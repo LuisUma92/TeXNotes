@@ -8,8 +8,6 @@ import os
 import peewee as pw
 import datetime
 
-import click
-
 import platform
 
 OPEN_COMMAND = "xdg-open"
@@ -1272,8 +1270,6 @@ class Helper:
                 print("Please enter either 'y' or 'n'")
 
 
-@click.command()
-@click.argument("args", nargs=-1)
 def main(args: tuple[str, ...]):
     """
 
