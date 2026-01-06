@@ -1,0 +1,45 @@
+[build-system]
+requires = ["uv_build >= 0.9.18, <0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "texnotes"
+version = "1.2.0.0"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Alfred Holmes", email = "holmesey55@gmail.com" },
+  { name = "Linn Abraham", email = "linn.official@gmail.com" },
+]
+maintainers = [
+  { name = "Luis Fernando Umaña Castro", email = "luis.umanacastro@ucr.ac.cr" },
+]
+dependencies = [
+  "peewee",
+  "numpy",
+  "watchdog",
+]
+optional-dependencies = {
+  gui = [
+    "networkx",
+    "pygraphviz",
+  ]
+  cli = ["click",]
+}
+
+[project.scripts]
+manage = "manage:main"
+
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["LatexZettel*", "TexNotes*"]
+
+
+[tool.pytest.ini_options]
+pythonpath = "."
