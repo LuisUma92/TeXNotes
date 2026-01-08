@@ -1,3 +1,4 @@
+# src/TexNotes/continuous_compile.py
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler

@@ -1,3 +1,4 @@
+# src/TexNotes/manage.py
 #!/bin/python3
 import sys
 
@@ -56,56 +57,56 @@ class Helper:
         with open("notes/documents.tex", "a") as f:
             f.write(f"\\externaldocument[{reference}-]{{{filename}}}\n")
 
-    def newnote_md(note_name, reference_name=""):
-        """
-        Creates a new markdown note with the given title. Otherwise, same functionality as Helper.newnote()
-        """
-        Helper.newnote(note_name, reference_name, extension="md")
+    # def newnote_md(note_name, reference_name=""):
+    #     """
+    #     Creates a new markdown note with the given title. Otherwise, same functionality as Helper.newnote()
+    #     """
+    #     Helper.newnote(note_name, reference_name, extension="md")
 
-    def newnote(note_name, reference_name="", **kwargs):
-        """
-        Makes a new note with name note_name [Optional ReferenceName]
-        Creates note with name note_name.tex, Second argument is optional and is the name in the reference, defaults to NoteName
-
-        to do: check whether a file already exists etc
-
-        """
-        if reference_name == "":
-            reference_name = "".join([w.capitalize() for w in note_name.split("_")])
-
-        # see if the note already exists
-        try:
-            note = database.Note.get(filename=note_name)
-            raise ValueError(
-                f"A note with file name {note_name} already exists in the database. If this is not the case then run manage.py synchronize to update the database, and then try again"
-            )
-            return
-        except pw.OperationalError:
-            database.create_all_tables()
-        except database.Note.DoesNotExist:
-            try:
-                note = database.Note.get(reference=reference_name)
-                raise ValueError(
-                    f"A note with reference {reference} already exists in the database. If this is not the case then run manage.py synchronize to update the database, and then try again. If the problem persists check the documents.tex file is correctly setup"
-                )
-                return
-            except database.Note.DoesNotExist:
-                pass
-
-        try:
-            ext = kwargs["extension"]
-        except KeyError:
-            ext = "tex"
-        Helper.__createnotefile(note_name, ext)
-        Helper.addtodocuments(note_name, reference_name)
-        # once created, add note to database
-        note = database.Note(
-            filename=note_name,
-            reference=reference_name,
-            created=datetime.datetime.now(),
-            last_edit_date=datetime.datetime.now(),
-        )
-        note.save()
+    # def newnote(note_name, reference_name="", **kwargs):
+    #     """
+    #     Makes a new note with name note_name [Optional ReferenceName]
+    #     Creates note with name note_name.tex, Second argument is optional and is the name in the reference, defaults to NoteName
+    #
+    #     to do: check whether a file already exists etc
+    #
+    #     """
+    #     if reference_name == "":
+    #         reference_name = "".join([w.capitalize() for w in note_name.split("_")])
+    #
+    #     # see if the note already exists
+    #     try:
+    #         note = database.Note.get(filename=note_name)
+    #         raise ValueError(
+    #             f"A note with file name {note_name} already exists in the database. If this is not the case then run manage.py synchronize to update the database, and then try again"
+    #         )
+    #         return
+    #     except pw.OperationalError:
+    #         database.create_all_tables()
+    #     except database.Note.DoesNotExist:
+    #         try:
+    #             note = database.Note.get(reference=reference_name)
+    #             raise ValueError(
+    #                 f"A note with reference {reference} already exists in the database. If this is not the case then run manage.py synchronize to update the database, and then try again. If the problem persists check the documents.tex file is correctly setup"
+    #             )
+    #             return
+    #         except database.Note.DoesNotExist:
+    #             pass
+    #
+    #     try:
+    #         ext = kwargs["extension"]
+    #     except KeyError:
+    #         ext = "tex"
+    #     Helper.__createnotefile(note_name, ext)
+        # Helper.addtodocuments(note_name, reference_name)
+        # # once created, add note to database
+        # note = database.Note(
+        #     filename=note_name,
+        #     reference=reference_name,
+        #     created=datetime.datetime.now(),
+        #     last_edit_date=datetime.datetime.now(),
+        # )
+        # note.save()
 
     def newproject(dir_name, filename=None):
         """
@@ -163,123 +164,123 @@ class Helper:
         if new_reference != db_file.reference:
             Helper.rename_reference(db_file.reference, new_reference)
 
-    def rename_file(old_filename, new_filename):
-        """
-        Rename the .tex file, fairly straightforward since only need to change documents.tex
-        """
-        try:
-            with open(f"notes/slipbox/{new_filename}.tex", "r"):
-                pass
-            raise ValueError(f"File, {new_filename}.tex already exists")
-        except FileNotFoundError:
-            pass
-        # copy file
-        shutil.copy(
-            f"notes/slipbox/{old_filename}.tex", f"notes/slipbox/{new_filename}.tex"
-        )
+    # def rename_file(old_filename, new_filename):
+    #     """
+    #     Rename the .tex file, fairly straightforward since only need to change documents.tex
+    #     """
+    #     try:
+    #         with open(f"notes/slipbox/{new_filename}.tex", "r"):
+    #             pass
+    #         raise ValueError(f"File, {new_filename}.tex already exists")
+    #     except FileNotFoundError:
+    #         pass
+    #     # copy file
+    #     shutil.copy(
+    #         f"notes/slipbox/{old_filename}.tex", f"notes/slipbox/{new_filename}.tex"
+    #     )
+    #
+    #     os.remove(f"notes/slipbox/{old_filename}.tex")
+    #
+    #     # change documents.tex
+    #     note = database.Note.get(filename=old_filename)
+    #     note.filename = new_filename
+    #
+    #     note.save()
+    #
+    #     lines = bytearray()
+    #
+    #     with open("notes/documents.tex", "r") as f:
+    #         for line in f:
+    #             lines.extend(
+    #                 re.sub(
+    #                     r"\\externaldocument\["
+    #                     + note.reference
+    #                     + r"\-\]\{"
+    #                     + old_filename
+    #                     + r"\}",
+    #                     r"\\externaldocument["
+    #                     + note.reference
+    #                     + r"-]{"
+    #                     + new_filename
+    #                     + r"}",
+    #                     line,
+    #                 ).encode()
+    #             )
+    #
+    #     with open("notes/documents.tex", "wb") as f:
+    #         f.write(lines)
 
-        os.remove(f"notes/slipbox/{old_filename}.tex")
+    # def rename_reference(old_reference, new_reference):
+    #     """
+    #     Rename the reference used throughout the whole Zettelkasten. This function changes documents.tex and also any documents that reference this note.
+    #     """
+    #
+    #     # function for regex replacement
+    #     Helper.synchronize()
+    #
+    #     def replace_text(m):
+    #         if m.group(1) is None and m.group(3) is None:
+    #             return f"\\excref{{{new_reference}}}"
+    #         elif m.group(1) is None and m.group(3) is not None:
+    #             return f"\\excref[{m.group(4)}]{{{new_reference}}}"
+    #         elif m.group(1) is not None and m.group(3) is None:
+    #             return f"\\exhyperref{{{new_reference}}}"
+    #         elif m.group(1) is not None:
+    #             return f"\\exhyperref[{m.group(4)}]{{{new_reference}}}"
+    #
+    #     # Update documents.tex
+    #
+    #     note = database.Note.get(reference=old_reference)
+    #
+    #     lines = bytearray()
+    #
+    #     with open("notes/documents.tex", "r") as f:
+    #         for line in f:
+    #             lines.extend(
+    #                 re.sub(
+    #                     r"\\externaldocument\["
+    #                     + note.reference
+    #                     + r"\-\]\{"
+    #                     + note.filename
+    #                     + r"\}",
+    #                     r"\\externaldocument["
+    #                     + new_reference
+    #                     + r"-]{"
+    #                     + note.filename
+    #                     + r"}",
+    #                     line,
+    #                 ).encode()
+    #             )
+    #
+    #     with open("notes/documents.tex", "wb") as f:
+    #         f.write(lines)
+    #
+    #     for label in note.labels:
+    #         backrefs = set()
+    #         for backref in label.referenced_by:
+    #             backrefs.add(backref)
+    #         for backref in backrefs:
+    #             lines = bytearray()
+    #             with open(f"notes/slipbox/{backref.source.filename}.tex", "r") as f:
+    #                 for line in f:
+    #                     lines.extend(
+    #                         re.sub(
+    #                             r"\\ex(hyper)?(c)?ref(\[([^]]+)\])?\{"
+    #                             + old_reference
+    #                             + r"\}",
+    #                             lambda m: replace_text(m),
+    #                             line,
+    #                         ).encode()
+    #                     )
+    #
+    #             with open(f"notes/slipbox/{backref.source.filename}.tex", "wb") as f:
+    #                 f.write(lines)
+    #
+    #     # update note db
+    #     note.reference = new_reference
+    #     note.save()
 
-        # change documents.tex
-        note = database.Note.get(filename=old_filename)
-        note.filename = new_filename
-
-        note.save()
-
-        lines = bytearray()
-
-        with open("notes/documents.tex", "r") as f:
-            for line in f:
-                lines.extend(
-                    re.sub(
-                        r"\\externaldocument\["
-                        + note.reference
-                        + r"\-\]\{"
-                        + old_filename
-                        + r"\}",
-                        r"\\externaldocument["
-                        + note.reference
-                        + r"-]{"
-                        + new_filename
-                        + r"}",
-                        line,
-                    ).encode()
-                )
-
-        with open("notes/documents.tex", "wb") as f:
-            f.write(lines)
-
-    def rename_reference(old_reference, new_reference):
-        """
-        Rename the reference used throughout the whole Zettelkasten. This function changes documents.tex and also any documents that reference this note.
-        """
-
-        # function for regex replacement
-        Helper.synchronize()
-
-        def replace_text(m):
-            if m.group(1) is None and m.group(3) is None:
-                return f"\\excref{{{new_reference}}}"
-            elif m.group(1) is None and m.group(3) is not None:
-                return f"\\excref[{m.group(4)}]{{{new_reference}}}"
-            elif m.group(1) is not None and m.group(3) is None:
-                return f"\\exhyperref{{{new_reference}}}"
-            elif m.group(1) is not None:
-                return f"\\exhyperref[{m.group(4)}]{{{new_reference}}}"
-
-        # Update documents.tex
-
-        note = database.Note.get(reference=old_reference)
-
-        lines = bytearray()
-
-        with open("notes/documents.tex", "r") as f:
-            for line in f:
-                lines.extend(
-                    re.sub(
-                        r"\\externaldocument\["
-                        + note.reference
-                        + r"\-\]\{"
-                        + note.filename
-                        + r"\}",
-                        r"\\externaldocument["
-                        + new_reference
-                        + r"-]{"
-                        + note.filename
-                        + r"}",
-                        line,
-                    ).encode()
-                )
-
-        with open("notes/documents.tex", "wb") as f:
-            f.write(lines)
-
-        for label in note.labels:
-            backrefs = set()
-            for backref in label.referenced_by:
-                backrefs.add(backref)
-            for backref in backrefs:
-                lines = bytearray()
-                with open(f"notes/slipbox/{backref.source.filename}.tex", "r") as f:
-                    for line in f:
-                        lines.extend(
-                            re.sub(
-                                r"\\ex(hyper)?(c)?ref(\[([^]]+)\])?\{"
-                                + old_reference
-                                + r"\}",
-                                lambda m: replace_text(m),
-                                line,
-                            ).encode()
-                        )
-
-                with open(f"notes/slipbox/{backref.source.filename}.tex", "wb") as f:
-                    f.write(lines)
-
-        # update note db
-        note.reference = new_reference
-        note.save()
-
-    def remove_note(filename):
+     def remove_note(filename):
         """
         Delete a note with given filename
         """
