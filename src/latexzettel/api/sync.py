@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from latexzettel.config.settings import NotesPaths
+from latexzettel.config.settings import NotesPaths, DEFAULT_SETTINGS
 from latexzettel.domain.errors import (
     DomainError,
     NoteNotFound,
@@ -233,7 +233,7 @@ def _update_note_from_file(db: DbModule, note, paths: NotesPaths) -> tuple[bool,
 def synchronize(
     *,
     db: DbModule,
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
 ) -> SyncResult:
     """
     Sincronización incremental:
@@ -287,7 +287,7 @@ def synchronize(
 def force_synchronize(
     *,
     db: DbModule,
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     create_missing_note_files: bool = False,
     create_documents_tex_if_missing: bool = True,
     timestamp: Optional[datetime] = None,

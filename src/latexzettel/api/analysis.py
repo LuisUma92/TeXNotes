@@ -21,13 +21,12 @@ Requisitos:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Sequence
 
 import numpy as np
 
 from latexzettel.domain.errors import DomainError
+from latexzettel.domain.types import DbModule
 from latexzettel.infra.db import ensure_tables
-from latexzettel.config.settings import DEFAULT_SETTINGS, NotesPaths
 
 
 # =============================================================================
@@ -59,7 +58,7 @@ class AdjacencyMatrixResult:
 
 def calculate_adjacency_matrix(
     *,
-    db,
+    db: DbModule,
     index_by: str = "filename",
 ) -> AdjacencyMatrixResult:
     """
@@ -127,7 +126,7 @@ def calculate_adjacency_matrix(
 
 def list_unreferenced_notes(
     *,
-    db,
+    db: DbModule,
     index_by: str = "filename",
 ) -> list:
     """
@@ -144,7 +143,7 @@ def list_unreferenced_notes(
 
 def remove_duplicate_citations(
     *,
-    db,
+    db: DbModule,
 ) -> int:
     """
     Elimina instancias duplicadas de Citation (misma note + citationkey),

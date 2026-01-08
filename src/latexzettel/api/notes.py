@@ -18,7 +18,7 @@ import shutil
 from typing import Optional
 
 
-from latexzettel.config.settings import NotesPaths
+from latexzettel.config.settings import NotesPaths, DEFAULT_SETTINGS
 from latexzettel.domain.errors import (
     NoteAlreadyExists,
     ReferenceAlreadyExists,
@@ -43,7 +43,7 @@ def create_note(
     note_name: str,
     reference_name: Optional[str] = None,
     extension: str = "tex",
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     now: Optional[datetime] = None,
     add_to_documents: bool = True,
     create_file: bool = True,
@@ -104,7 +104,7 @@ def create_note_md(
     db: DbModule,
     note_name: str,
     reference_name: Optional[str] = None,
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     now: Optional[datetime] = None,
 ) -> None:
     """
@@ -125,7 +125,7 @@ def rename_note_file(
     db: DbModule,
     old_filename: str,
     new_filename: str,
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
 ) -> None:
     """
     Renombra notes/slipbox/<old>.tex -> <new>.tex y actualiza:
@@ -174,7 +174,7 @@ def rename_reference(
     db: DbModule,
     old_reference: str,
     new_reference: str,
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     update_backrefs: bool = True,
 ) -> None:
     """
@@ -256,7 +256,7 @@ def remove_note(
     *,
     db: DbModule,
     filename: str,
-    paths: NotesPaths = NotesPaths(),
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     delete_db_entry: bool = True,
     delete_documents_entry: bool = True,
     delete_file: bool = False,

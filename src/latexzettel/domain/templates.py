@@ -12,7 +12,7 @@ from pathlib import Path
 
 def min_tex_file(f: Path):
     msn = "\\documentclass{../template/texnote}\n"
-    msn += ("\\begin{document}\n\\end{document}",)
+    msn += "\\begin{document}\n\\end{document}"
     f.write_text(
         msn,
         encoding="utf-8",

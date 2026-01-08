@@ -27,17 +27,18 @@ from typing import Optional
 from latexzettel.config.settings import (
     NotesPaths,
     RenderSettings,
-    build_render_settings,
+    DEFAULT_SETTINGS,
 )
 from latexzettel.domain.errors import (
     DomainError,
     NoteNotFound,
 )
-from latexzettel.domain.types import RenderFormat
+from latexzettel.domain.types import DbModule, RenderFormat
 from latexzettel.infra import processes
 from latexzettel.infra.db import ensure_tables
-from latexzettel.util.time import now, needs_render
+from latexzettel.util.time import now
 
+from latexzettel.api.sync import synchronize
 
 # =============================================================================
 # Resultados
@@ -171,12 +172,12 @@ def biber(
 
 def render_note(
     *,
-    db,
+    db: DbModule,
     filename: str,
     format: RenderFormat = RenderFormat.PDF,
     run_biber: bool = False,
-    settings: RenderSettings = build_render_settings(),
-    paths: NotesPaths = NotesPaths(),
+    settings: RenderSettings = DEFAULT_SETTINGS.render,
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     timestamp: Optional[datetime] = None,
     check: bool = False,
 ) -> RenderResult:
@@ -197,7 +198,7 @@ def render_note(
     - RenderResult con stdout/stderr y estado.
     """
     # Timestamp
-    ts = timestamp or now_dt()
+    ts = timestamp or now()
 
     # Asegurar esquema si estás usando el patrón modular defensivo
     health = ensure_tables(db)
@@ -227,7 +228,7 @@ def render_note(
         folder = paths.abs(
             paths.pdf_dir if format == RenderFormat.PDF else paths.html_dir
         )
-        _b = biber(filename=filename, folder=folder, check=check)
+        _ = biber(filename=filename, folder=folder, check=check)
         # Segunda pasada
         return render_note(
             db=db,
@@ -333,10 +334,10 @@ def render_note(
 
 def render_all(
     *,
-    db,
+    db: DbModule,
     format: RenderFormat = RenderFormat.PDF,
-    settings: RenderSettings = build_render_settings(),
-    paths: NotesPaths = NotesPaths(),
+    settings: RenderSettings = DEFAULT_SETTINGS.render,
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
     run_biber_each: bool = True,
     check: bool = False,
 ) -> list[RenderResult]:
@@ -388,3 +389,142 @@ def render_all(
         results.append(res)
 
     return results
+
+
+@dataclass(frozen=True)
+class RenderUpdatesResult:
+    """
+    rendered:
+      notas renderizadas porque estaban modificadas (sync) o requerían build por timestamps.
+    rerendered_targets:
+      notas target re-renderizadas por aparición/cambio de links.
+    rerendered_sources:
+      notas source re-renderizadas por aparición/cambio de links.
+    """
+
+    rendered: list[str]
+    rerendered_targets: list[str]
+    rerendered_sources: list[str]
+
+
+def render_updates(
+    *,
+    db: DbModule,
+    format: RenderFormat = RenderFormat.PDF,
+    settings: RenderSettings = DEFAULT_SETTINGS.render,
+    paths: NotesPaths = DEFAULT_SETTINGS.paths,
+    timestamp: Optional[datetime] = None,
+    check: bool = False,
+) -> RenderUpdatesResult:
+    """
+    Render incremental con semántica legacy.
+
+    Parámetros:
+    - db: módulo externo peewee (modularidad)
+    - format: RenderFormat.PDF | RenderFormat.HTML
+    - timestamp: timestamp único para esta corrida (si None, now()).
+    - check: si True, propaga fallos de proceso como excepción (ver api/render.py).
+    """
+    ts = timestamp or now()
+
+    health = ensure_tables(db)
+    if not health.ok:
+        raise DomainError(f"DB no disponible: {health.error}")
+
+    # 1) Sync incremental (equivalente a Helper.synchronize())
+    sync_res = synchronize(db=db, paths=paths)
+
+    # "updated" del legacy = to_read (notas cuyo archivo cambió desde last_edit_date)
+    updated = list(sync_res.updated_notes)  # list[Note]
+    new_links = list(sync_res.new_or_modified_links)  # list[Link]
+    run_biber = dict(sync_res.run_biber)  # dict[Note, bool]
+
+    # 2) Extender updated con notas que requieren render por timestamps (igual que legacy)
+    #    y, al agregarlas, marcar run_biber=True y extender new_links con note.references
+    for note in db.Note:
+        if note in updated:
+            continue
+
+        if format == RenderFormat.PDF:
+            needs = (note.last_build_date_pdf is None) or (
+                note.last_edit_date is not None
+                and note.last_edit_date > note.last_build_date_pdf
+            )
+        else:
+            needs = (note.last_build_date_html is None) or (
+                note.last_edit_date is not None
+                and note.last_edit_date > note.last_build_date_html
+            )
+
+        if needs:
+            updated.append(note)
+            run_biber[note] = True
+            # en legacy: new_links.extend([r for r in note.references])
+            new_links.extend(list(note.references))
+
+    # 3) Renderizar las notas "updated"
+    rendered_names: list[str] = []
+    for note in updated:
+        rb = bool(run_biber.get(note, False))
+        res = render_note(
+            db=db,
+            filename=note.filename,
+            format=format,
+            run_biber=rb,
+            settings=settings,
+            paths=paths,
+            timestamp=ts,
+            check=check,
+        )
+        if res.ok:
+            rendered_names.append(note.filename)
+
+    # 4) Re-render targets afectados por new_links (una vez cada uno)
+    rerendered_targets: list[str] = []
+    seen_targets: set[str] = set()
+    for link in new_links:
+        target_note = link.target.note
+        if target_note.filename in seen_targets:
+            continue
+        seen_targets.add(target_note.filename)
+
+        res = render_note(
+            db=db,
+            filename=target_note.filename,
+            format=format,
+            run_biber=False,
+            settings=settings,
+            paths=paths,
+            timestamp=ts,
+            check=check,
+        )
+        if res.ok:
+            rerendered_targets.append(target_note.filename)
+
+    # 5) Re-render sources afectados por new_links (una vez cada uno)
+    rerendered_sources: list[str] = []
+    seen_sources: set[str] = set()
+    for link in new_links:
+        source_note = link.source
+        if source_note.filename in seen_sources:
+            continue
+        seen_sources.add(source_note.filename)
+
+        res = render_note(
+            db=db,
+            filename=source_note.filename,
+            format=format,
+            run_biber=False,
+            settings=settings,
+            paths=paths,
+            timestamp=ts,
+            check=check,
+        )
+        if res.ok:
+            rerendered_sources.append(source_note.filename)
+
+    return RenderUpdatesResult(
+        rendered=rendered_names,
+        rerendered_targets=rerendered_targets,
+        rerendered_sources=rerendered_sources,
+    )

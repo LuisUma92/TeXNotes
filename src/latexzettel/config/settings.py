@@ -209,4 +209,33 @@ class Settings:
 
     paths: NotesPaths
     render: RenderSettings
-    pandoc: Pandoc
+    pandoc: PandocSettings
+    database: DatabaseSettings
+    behavior: BehaviorSettings
+    platform: PlatformSettings
+
+
+def build_settings(root: Path | None = None) -> Settings:
+    """
+    Punto único de construcción de configuración.
+
+    - Permite inyectar un root distinto (tests, sandbox, etc.).
+    - El resto se deriva de defaults.
+    """
+    paths = NotesPaths(root=root if root is not None else defaults.DEFAULT_ROOT)
+
+    return Settings(
+        paths=paths,
+        render=build_render_settings(),
+        pandoc=build_pandoc_settings(),
+        database=build_database_settings(),
+        behavior=build_behavior_settings(),
+        platform=build_platform_settings(),
+    )
+
+
+# =============================================================================
+# Configuración por defecto (uso directo)
+# =============================================================================
+
+DEFAULT_SETTINGS: Settings = build_settings()

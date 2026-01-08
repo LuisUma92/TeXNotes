@@ -19,7 +19,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import NewType, Optional, Protocol, Sequence, TypedDict, runtime_checkable
+from typing import (
+    NewType,
+    Optional,
+    Protocol,
+    Sequence,
+    TypedDict,
+    runtime_checkable,
+)
 
 from latexzettel.infra.orm import Note
 
