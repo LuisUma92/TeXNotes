@@ -16,14 +16,16 @@ authors = [
 maintainers = [
   { name = "Luis Fernando Umaña Castro", email = "luis.umanacastro@ucr.ac.cr" },
 ]
-dependencies = ["peewee", "numpy", "watchdog"]
+dependencies = ["peewee", "numpy", "watchdog", "click>=8.1"]
 
 [project.optional-dependencies]
 gui = ["networkx", "pygraphviz"]
+dev = ["pytest"]
 
 [project.scripts]
 manage = "manage:main"
-
+latexzettel = "latexzettel.cli.main:main"
+latexzettel-server = "latexzettel.server.main:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
