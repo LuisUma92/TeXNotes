@@ -34,8 +34,7 @@ from latexzettel.api.notes import (
     remove_note,
 )
 from latexzettel.api.workflows import list_recent_notes, get_recent_note
-from latexzettel.api.render import render_note
-from latexzettel.api.render_updates import render_updates
+from latexzettel.api.render import render_note, render_updates
 from latexzettel.api.sync import synchronize, force_synchronize
 from latexzettel.api.markdown import sync_md, tex_to_md
 from latexzettel.api.export import new_project, export_project, export_draft

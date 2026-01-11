@@ -780,8 +780,10 @@ def main() -> None:
     # Defaults de sesión (pueden ser override por initialize)
     ctx = ServerContext(
         settings=DEFAULT_SETTINGS,
-        db_module_path="LatexZettel.database",
-        db=_import_db_module("LatexZettel.database"),
+        # db_module_path="LatexZettel.database",
+        # db=_import_db_module("LatexZettel.database"),
+        db_module_path="latexzettel.infra.orm",
+        db=_import_db_module("latexzettel.infra.orm"),
         initialized=False,
     )
 

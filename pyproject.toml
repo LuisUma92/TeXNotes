@@ -3,7 +3,7 @@ requires = ["uv_build >= 0.9.18, <0.10.0"]
 build-backend = "uv_build"
 
 [project]
-name = "texnotes"
+name = "latexzettel"
 version = "1.2.0.0"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -23,8 +23,8 @@ gui = ["networkx", "pygraphviz"]
 dev = ["pytest"]
 
 [project.scripts]
-manage = "manage:main"
-latexzettel = "latexzettel.cli.main:main"
+manage = "TexNotes.manage:main"
+latexzettel = "latexzettel.cli.main:cli"
 latexzettel-server = "latexzettel.server.main:main"
 
 [tool.setuptools]
@@ -32,7 +32,7 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["LatexZettel*", "TexNotes*"]
+include = ["latexzettel*", "TexNotes*"]
 
 
 [tool.pytest.ini_options]
