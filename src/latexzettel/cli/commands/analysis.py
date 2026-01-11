@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import click
 
-from latexzettel.cli.main import CLIContext
+from latexzettel.cli.context import CLIContext
 from latexzettel.domain.errors import DomainError
 from latexzettel.api.analysis import (
     calculate_adjacency_matrix,

@@ -6,11 +6,15 @@ from typing import Optional
 
 import click
 
-from latexzettel.cli.main import CLIContext
+from latexzettel.cli.context import CLIContext
 from latexzettel.domain.errors import DomainError
 from latexzettel.domain.types import RenderFormat
-from latexzettel.api.render import render_note, render_all, biber as api_biber
-from latexzettel.api.render_updates import render_updates
+from latexzettel.api.render import (
+    render_note,
+    render_updates,
+    render_all,
+    biber as api_biber,
+)
 
 
 def register(root: click.Group) -> None:

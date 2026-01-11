@@ -1,15 +1,13 @@
 # src/latexzettel/cli/commands/notes.py
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import Optional
 
 import click
 
-from latexzettel.cli.main import CLIContext
+from latexzettel.cli.context import CLIContext
 from latexzettel.domain.errors import (
     DomainError,
-    NoteNotFound,
     NoteAlreadyExists,
     ReferenceAlreadyExists,
 )
@@ -21,10 +19,6 @@ from latexzettel.api.workflows import (
 )
 from latexzettel.api.markdown import tex_to_md
 from latexzettel.util.io import confirm
-
-
-def register(root: click.Group) -> None:
-    root.add_command(notes)
 
 
 @click.group()
@@ -80,7 +74,7 @@ def cmd_newnote(
             add_to_documents=not no_documents,
             create_file=not no_file,
         )
-        click.echo(f"OK: creada '{note_name}' (ext={extension})")
+        click.echo(f"OK: '{note_name}' (ext={extension})")
     except (NoteAlreadyExists, ReferenceAlreadyExists) as e:
         raise click.ClickException(str(e)) from e
     except DomainError as e:

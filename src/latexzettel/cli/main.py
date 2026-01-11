@@ -2,30 +2,18 @@
 from __future__ import annotations
 
 import importlib
-from dataclasses import dataclass
-from typing import Optional
 
 import click
 
-from latexzettel.config.settings import DEFAULT_SETTINGS, Settings
+from latexzettel.config.settings import DEFAULT_SETTINGS
 from latexzettel.infra.db import ensure_tables
 
-from latexzettel.cli.commands import notes, render, sync, export, analysis, misc
-
-
-@dataclass(frozen=True)
-class CLIContext:
-    """
-    Contexto compartido entre comandos Click.
-
-    db:
-      módulo externo peewee (por modularidad). Debe exponer Note, create_all_tables(), database, etc.
-    settings:
-      configuración ensamblada (paths, renderers, platform, etc.)
-    """
-
-    db: object
-    settings: Settings
+from latexzettel.cli.commands.notes import notes
+from latexzettel.cli.commands.render import render
+from latexzettel.cli.commands.sync import sync
+from latexzettel.cli.commands.export import export
+from latexzettel.cli.commands.analysis import analysis
+from latexzettel.cli.context import CLIContext
 
 
 def _load_db_module(db_module: str):
@@ -52,7 +40,7 @@ def _init_db(db) -> None:
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option(
     "--db-module",
-    default="LatexZettel.database",
+    default="latexzettel.infra.orm",
     show_default=True,
     help="Ruta del módulo peewee que define la DB y modelos (Note, Label, Link, etc.).",
 )
@@ -67,36 +55,28 @@ def _init_db(db) -> None:
 def cli(ctx: click.Context, db_module: str, root: str) -> None:
     """
     CLI para gestionar el Zettelkasten LaTeX.
-
-    Comandos disponibles: notes, render, sync, export, analysis, misc
     """
-    # Construir settings con root (si quieres; por ahora usamos DEFAULT_SETTINGS y
-    # asumimos que tu Settings permite root configurable. Si no, se ajusta.)
     settings = DEFAULT_SETTINGS
-    # Si tu build_settings(root=...) ya existe, se recomienda:
-    # from latexzettel.config.settings import build_settings
-    # settings = build_settings(Path(root))
 
-    # Importar DB module y asegurar tablas
     db = _load_db_module(db_module)
     _init_db(db)
 
     ctx.obj = CLIContext(db=db, settings=settings)
 
-    # Registrar comandos
 
-    notes.register(cli)
-    render.register(cli)
-    sync.register(cli)
-    export.register(cli)
-    analysis.register(cli)
-    misc.register(cli)
+cli.add_command(notes)
+cli.add_command(render)
+cli.add_command(sync)
+cli.add_command(export)
+cli.add_command(analysis)
+# cli.add_command(misc)
 
 
 def main() -> None:
     """
     Entry point para console_scripts.
     """
+    print("hola")
     cli()
 
 

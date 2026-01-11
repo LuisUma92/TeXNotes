@@ -6,7 +6,7 @@ from typing import Optional
 
 import click
 
-from latexzettel.cli.main import CLIContext
+from latexzettel.cli.context import CLIContext
 from latexzettel.domain.errors import DomainError
 from latexzettel.api.sync import synchronize, force_synchronize
 from latexzettel.api.markdown import sync_md
