@@ -50,7 +50,7 @@ local function default_config()
 			},
 		},
 		debug = false,
-		request_timeout_ms = 30_000,
+		request_timeout_ms = 30000,
 		on_server_exit = nil,
 	}
 end
@@ -67,7 +67,7 @@ function M.new(cfg)
 		stderr_buf = {},
 		stdout_buf = "",
 	}
-	return c
+	return setmetatable(c, { __index = M })
 end
 
 ---@param self LatexZettelClient
@@ -182,7 +182,8 @@ function M.start(self)
 			self.job_id = nil
 			self.chan = nil
 			self.initialized = false
-			_clear_pending(self, ("server exited (code=%d signal=%d)"):format(code, signal))
+			local msg = ("server exited (code=%s signal=%s)"):format(tostring(code), tostring(signal))
+			_clear_pending(self, msg)
 			if self.config.on_server_exit then
 				self.config.on_server_exit(code, signal)
 			end
@@ -301,14 +302,14 @@ function M.initialize(self, cb)
 			return
 		end
 		cb(result, nil)
-	end, 10_000)
+	end, 10000)
 end
 
 ---@param self LatexZettelClient
 ---@param id_to_cancel string|integer
 ---@param cb fun(result: table|nil, err: table|string|nil)
 function M.cancel(self, id_to_cancel, cb)
-	return self:request("cancel", { id_to_cancel = id_to_cancel }, cb, 5_000)
+	return self:request("cancel", { id_to_cancel = id_to_cancel }, cb, 5000)
 end
 
 return M
