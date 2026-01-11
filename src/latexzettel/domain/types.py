@@ -130,8 +130,7 @@ class DbModule(Protocol):
 
     database: object
 
-    class Note(Note):  # ORM model
-        pass
+    class Note: ...
 
     def create_all_tables(self) -> None: ...
 
